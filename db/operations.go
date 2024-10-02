@@ -17,6 +17,7 @@ func errorHandler(message string) error {
 	return errors.New(message)
 }
 
+
 func CreateTodo(todo *Todo) (*Todo, error) {
 	todo.ID = uuid.New().String()
 	todo.Completed = false

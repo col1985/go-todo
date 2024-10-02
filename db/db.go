@@ -14,11 +14,12 @@ var db *gorm.DB
 var err error
 
 type Todo struct {
-	ID          string `json:"id"`
+	ID          string `json:"id,omitempty"`
 	Title       string `json:"title"`
 	Author      string `json:"author"`
-	CreatedDate string `json:"created_date"`
-	Completed   bool   `json:"completed"`
+	CreatedDate string `json:"created_date,omitempty"`
+	UpdateDate string  `json:"updated_date,omitempty"`
+	Completed   bool   `json:"completed,omitempty"`
 }
 
 func loadEnvFile() {
