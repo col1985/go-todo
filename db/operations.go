@@ -1,27 +1,16 @@
 package db
 
 import (
-	"errors"
 	"fmt"
-	"time"
 
+	"github.com/col1985/go-todo/utils"
 	"github.com/google/uuid"
 )
-
-func getDateString() string {
-	t := time.Now()
-	return t.String()
-}
-
-func errorHandler(message string) error {
-	return errors.New(message)
-}
-
 
 func CreateTodo(todo *Todo) (*Todo, error) {
 	todo.ID = uuid.New().String()
 	todo.Completed = false
-	todo.CreatedDate = getDateString()
+	todo.CreatedDate = utils.GetDateString()
 
 	res := db.Create(&todo)
 
@@ -37,7 +26,7 @@ func GetTodoById(id string) (*Todo, error) {
 
 	res := db.First(&todo, "id = ?", id)
 	if res.RowsAffected == 0 {
-		return nil, errorHandler(fmt.Sprintf("Todo item with `id` %s is not found", id))
+		return nil, utils.ErrorHandler(fmt.Sprintf("Todo item with `id` %s is not found", id))
 	}
 
 	return &todo, nil
@@ -48,7 +37,7 @@ func GetTodoList() ([]*Todo, error) {
 
 	res := db.Find(&todos)
 	if res.Error != nil {
-			return nil, errorHandler("No todo items found")
+			return nil, utils.ErrorHandler("No todo items found")
 	}
 
 	return todos, nil
@@ -59,7 +48,7 @@ func UpdateTodo(todo *Todo) (*Todo, error) {
 
 	result := db.Model(&todoToUpdate).Where("id = ?", todo.ID).Updates(todo)
 	if result.RowsAffected == 0 {
-			return &todoToUpdate, errorHandler(fmt.Sprintf("Todo item with `id` %s is not updated.", todo.ID))
+			return &todoToUpdate, utils.ErrorHandler(fmt.Sprintf("Todo item with `id` %s is not updated.", todo.ID))
 	}
 
 	return todo, nil
@@ -70,7 +59,7 @@ func DeleteTodo(id string) error {
 
 	result := db.Where("id = ?", id).Delete(&deleted)
 	if result.RowsAffected == 0 {
-			return errorHandler(fmt.Sprintf("Todo item with `id` %s is not deleted.", id))
+			return utils.ErrorHandler(fmt.Sprintf("Todo item with `id` %s is not deleted.", id))
 	}
 
 	return nil

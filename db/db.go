@@ -7,7 +7,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
 )
 
 var db *gorm.DB
@@ -15,23 +14,15 @@ var err error
 
 type Todo struct {
 	ID          string `json:"id,omitempty"`
-	Title       string `json:"title"`
+	Task        string `json:"task"`
 	Author      string `json:"author"`
 	CreatedDate string `json:"created_date,omitempty"`
-	UpdateDate string  `json:"updated_date,omitempty"`
+	UpdateDate  string `json:"updated_date,omitempty"`
 	Completed   bool   `json:"completed,omitempty"`
 }
 
-func loadEnvFile() {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatal("Error loading .env file", err)
-	}
-}
-
 func getConnectionString() string {
-	loadEnvFile()
+	// loadEnvFile()
 
 	var (
 		host = os.Getenv("DB_HOST")
