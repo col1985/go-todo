@@ -25,7 +25,11 @@ DB_PASSWORD=
 ### Building the app using a Containerfile
 
 ```bash
-podman build -t go-todo:<version /> .
+podman build \
+--build-arg=CGO_ENABLED=0 \
+--build-arg=GOOS=linux \
+--build-arg=GOARCH=amd64 \
+-t go-todo:<version /> .
 ```
 
 ### Running the app using Podman
@@ -34,10 +38,41 @@ podman build -t go-todo:<version /> .
 podman run --name=go-todo --env-file=.env -p 8080:8080 localhost/go-todo:<version />
 ```
 
+```bash
+podman run --name=go-todo \
+--pod=go-todo-pod \
+-e API_PORT=8080 \
+-e DB_HOST=localhost \
+-e DB_PORT=5432 \
+-e DB_USER=username \
+-e DB_PASSWORD=password \
+-e DB_NAME=tasks \
+-p 8080:8080 localhost/go-todo:<version />
+```
+
+```bash
+oc new-app --name todo-api --image=quay.io/cbennett/go-todo:v1.0.3 \
+-e API_PORT=8080 \
+-e DB_HOST= \
+-e DB_PORT=5432 \
+-e DB_USER=user \
+-e DB_PASSWORD=password \
+-e DB_NAME=tasks
+```
 ### Running Postgres PGAdmin with Podman
 
 ```bash
+oc new-app \
+  --name todo-db-postgresql \
+  --image=registry.redhat.io/rhel8/postgresql-12:1-177 \
+  -e POSTGRESQL_USER=user \
+  -e POSTGRESQL_DATABASE=db \
+  -e POSTGRESQL_PASSWORD=password
+```
+
+```bash
 podman run \
+--pod=go-todo-pod \
 --name postgresdb \
 -e POSTGRES_USER=username \
 -e POSTGRES_PASSWORD=password \

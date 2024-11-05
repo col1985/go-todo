@@ -7,9 +7,11 @@ COPY . .
 
 RUN go mod download
 
-EXPOSE 8080
+ARG CGO_ENABLED
+ARG GOOS
+ARG GOARCH
 
-RUN go build -o ./go-todo
+RUN CGO_ENABLED=${CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} go build -o ./go-todo
 
 # Deploy
 FROM golang:1.23.1-alpine
@@ -17,8 +19,6 @@ FROM golang:1.23.1-alpine
 WORKDIR /
 
 COPY --from=builder /app/go-todo /go-todo
-
-COPY --from=builder /app/.env /
 
 EXPOSE 8080
 

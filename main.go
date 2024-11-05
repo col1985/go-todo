@@ -7,15 +7,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/col1985/go-todo/db"
 	"github.com/col1985/go-todo/router"
-	"github.com/col1985/go-todo/utils"
 )
 
 
 func main() {
-	utils.LoadEnvFile()
 	db.Init()
 
 	r := chi.NewRouter()
@@ -29,6 +28,8 @@ func main() {
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("pong"))
 	})
+
+	r.Get("/metrics", promhttp.Handler().ServeHTTP)
 
 	r.Mount("/todos", router.TodoRoutes())
 

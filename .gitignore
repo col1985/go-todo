@@ -1,5 +1,8 @@
 .vscode
 build
 .env
+.devfile.yml
+README.md
 go-todo-pod-conf.yml
 go-todo-chart
+todo-api
