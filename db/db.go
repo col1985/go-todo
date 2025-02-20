@@ -21,9 +21,7 @@ type Todo struct {
 	Completed   bool   `json:"completed,omitempty"`
 }
 
-func getConnectionString() string {
-	// loadEnvFile()
-
+func getConnectionString(create bool) string {
 	var (
 		host = os.Getenv("DB_HOST")
 		port = os.Getenv("DB_PORT")
@@ -32,25 +30,56 @@ func getConnectionString() string {
 		dbPassword = os.Getenv("DB_PASSWORD")
 	)
 
-	return fmt.Sprintf(
-		"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		host,
-		port,
-		dbUser,
-		dbName,
-		dbPassword,
-	)
+	connection := ""
+	if create {
+		connection = fmt.Sprintf(
+			"host=%s port=%s user=%s password=%s sslmode=disable",
+			host,
+			port,
+			dbUser,
+			dbPassword,
+		)
+	} else {
+		connection = fmt.Sprintf(
+			"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+			host,
+			port,
+			dbUser,
+			dbName,
+			dbPassword,
+		)
+	}
+
+	return connection
+}
+
+func handleDbConnectionError(err error) {
+ 	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 }
 
 func Init() {
-	dbConn := getConnectionString()
+	dbConn := getConnectionString(false)
 
 	db, err = gorm.Open("postgres", dbConn)
 
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		log.Println("Database doesn't exisiting auto-creating ...")
+		createDbConn := getConnectionString(true)
+		db, err = gorm.Open("postgres", createDbConn)
+		if err != nil {
+			handleDbConnectionError(err)
+		}
+
+		query := fmt.Sprintf("CREATE DATABASE %s;", os.Getenv("DB_NAME"))
+		db = db.Exec(query)
+		db.AutoMigrate(Todo{})
 	}
 
+	handleDbConnectionError(err)
+
+	log.Println("Database exisit ...")
 	db.AutoMigrate(Todo{})
 }

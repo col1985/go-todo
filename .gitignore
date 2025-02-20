@@ -4,5 +4,6 @@ build
 .devfile.yml
 README.md
 go-todo-pod-conf.yml
-go-todo-chart
+todo-api-chart
 todo-api
+set_env_var.sh

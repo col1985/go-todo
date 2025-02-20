@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -11,10 +12,15 @@ import (
 
 	"github.com/col1985/go-todo/db"
 	"github.com/col1985/go-todo/router"
+	"github.com/col1985/go-todo/utils"
 )
 
-
 func main() {
+	isDev := os.Getenv("IS_DEV")
+	if isDev == "true" {
+		utils.LoadEnvFile()
+	}
+
 	db.Init()
 
 	r := chi.NewRouter()
@@ -33,12 +39,18 @@ func main() {
 
 	r.Mount("/todos", router.TodoRoutes())
 
-	port := fmt.Sprintf(":%s", os.Getenv("API_PORT"))
-	err := http.ListenAndServe(port, r)
-
-	if err != nil {
-			panic(err)
+	host := ""
+	if isDev == "true" {
+		host = fmt.Sprintf("localhost:%s", os.Getenv("API_PORT"))
+	} else {
+		host = fmt.Sprintf(":%s", os.Getenv("API_PORT"))
 	}
 
-	fmt.Printf("Go Todo App is running on http://localhost%s", port)
+	log.Printf("Starting Todo API is running on %s ...", host)
+
+	err := http.ListenAndServe(host, r)
+
+	if err != nil {
+		panic(err)
+	}
 }
